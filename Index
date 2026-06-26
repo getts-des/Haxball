@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HaxBall Mundial 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Rajdhani',sans-serif;background:#0A0012;color:#E0E0E0;min-height:100vh}
+
+    .header{
+      background:linear-gradient(135deg,#1a0033 0%,#0A0012 50%,#1a0033 100%);
+      border-bottom:2px solid rgba(161,0,255,0.4);
+      padding:32px 20px 24px;text-align:center;position:relative;
+    }
+    .header-topline{position:absolute;top:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,transparent,#A100FF,#C040FF,#A100FF,transparent)}
+    .header h1{font-size:clamp(22px,5vw,46px);font-weight:700;letter-spacing:0.18em;color:#fff;
+      text-shadow:0 0 30px rgba(161,0,255,0.6);margin-bottom:4px}
+    .header-sub{font-size:12px;letter-spacing:0.35em;color:#A100FF;margin-bottom:12px}
+    .status-badge{display:inline-block;padding:4px 18px;border-radius:20px;
+      font-size:11px;font-weight:700;letter-spacing:0.25em;
+      border:1px solid rgba(161,0,255,0.5);background:rgba(161,0,255,0.12);color:#C040FF}
+    .admin-link{position:absolute;top:14px;right:16px;font-size:11px;color:#333;
+      text-decoration:none;letter-spacing:0.1em;padding:4px 10px;
+      border:1px solid #222;border-radius:6px;transition:all 0.2s}
+    .admin-link:hover{color:#A100FF;border-color:rgba(161,0,255,0.4)}
+
+    .section{max-width:1200px;margin:0 auto;padding:32px 16px}
+    .section-title{font-size:18px;font-weight:700;letter-spacing:0.2em;
+      color:#C040FF;margin-bottom:24px;text-align:center}
+    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(161,0,255,0.3),transparent);margin:8px 0}
+
+    .groups-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+    .group-card{background:#10001F;border:1px solid rgba(161,0,255,0.2);border-radius:12px;overflow:hidden}
+    .group-card-header{background:rgba(161,0,255,0.15);padding:10px 16px;
+      font-size:13px;font-weight:700;letter-spacing:0.2em;color:#A100FF}
+
+    .standings{width:100%;border-collapse:collapse;font-size:12.5px}
+    .standings th{padding:6px;text-align:center;font-size:10px;letter-spacing:0.08em;
+      color:#555;font-weight:700;border-bottom:1px solid rgba(161,0,255,0.12)}
+    .standings th.col-team{text-align:left;padding-left:10px}
+    .standings td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(161,0,255,0.06)}
+    .standings td.col-team{text-align:left;padding-left:10px}
+    .standings tbody tr:last-child td{border-bottom:none}
+    .standings tr.qualifier td.col-team{border-left:2px solid #FFD700;padding-left:8px}
+    .standings tr.qualifier{background:rgba(255,215,0,0.05)}
+    .pos{color:#555;font-size:11px;margin-right:5px}
+    .pts-col{font-weight:700;color:#A100FF}
+
+    .matches-list{padding:8px 8px 10px}
+    .match-row{display:flex;align-items:center;gap:6px;padding:6px 8px;
+      border-radius:7px;margin-bottom:3px;background:rgba(255,255,255,0.02);font-size:12.5px}
+    .match-row:last-child{margin-bottom:0}
+    .mt{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .mt.r{text-align:right}
+    .mt.w{color:#FFD700}
+    .ms{padding:2px 10px;background:rgba(161,0,255,0.12);border-radius:5px;
+      font-weight:700;font-size:13px;white-space:nowrap;flex-shrink:0}
+    .ms.pend{color:#444;font-weight:400;font-size:11px}
+
+    .bracket-phases{display:flex;flex-direction:column;gap:28px}
+    .phase-label{font-size:13px;font-weight:700;letter-spacing:0.2em;color:#A100FF;
+      text-align:center;margin-bottom:14px}
+    .phase-grid{display:grid;gap:12px}
+    .phase-grid.qf{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+    .phase-grid.sf{grid-template-columns:repeat(2,1fr);max-width:520px;margin:0 auto;width:100%}
+    .phase-grid.fn{grid-template-columns:1fr;max-width:260px;margin:0 auto;width:100%}
+
+    .mcard{background:#0F001E;border:1px solid rgba(161,0,255,0.25);border-radius:10px;overflow:hidden}
+    .mcard.done{border-color:rgba(255,215,0,0.25);box-shadow:0 0 12px rgba(255,215,0,0.06)}
+    .mcard-label{padding:4px 12px;font-size:10px;letter-spacing:0.15em;color:#555;
+      border-bottom:1px solid rgba(161,0,255,0.08)}
+    .mcard-team{display:flex;justify-content:space-between;align-items:center;
+      padding:10px 12px;border-bottom:1px solid rgba(161,0,255,0.08)}
+    .mcard-team:last-of-type{border-bottom:none}
+    .mcard-team.win{background:rgba(255,215,0,0.07)}
+    .mcard-tname{font-weight:600;font-size:13px}
+    .mcard-tname.tbd{color:#333}
+    .mcard-tname.wname{color:#FFD700}
+    .mcard-score{font-weight:700;font-size:15px;color:#555}
+    .mcard-score.wscore{color:#FFD700}
+
+    .champion{text-align:center;margin:20px auto 0;padding:14px 24px;
+      background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);
+      border-radius:12px;max-width:380px;color:#FFD700;font-size:18px;
+      font-weight:700;letter-spacing:0.15em;box-shadow:0 0 28px rgba(255,215,0,0.15)}
+
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:14px}
+    .spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(161,0,255,0.15);
+      border-top-color:#A100FF;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loading-txt{color:#444;font-size:13px;letter-spacing:0.2em}
+    .hidden{display:none!important}
+    .setup-msg{text-align:center;padding:60px 20px;color:#444;font-size:16px;letter-spacing:0.1em}
+
+    @media(max-width:580px){
+      .groups-grid{grid-template-columns:1fr}
+      .phase-grid.sf{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <div class="loading-txt">CARGANDO TORNEO...</div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="header">
+    <div class="header-topline"></div>
+    <a href="admin.html" class="admin-link">Admin</a>
+    <h1>HAXBALL MUNDIAL 2026</h1>
+    <div class="header-sub">ACCENTURE · EDICIÓN INTERNA</div>
+    <div id="status-badge" class="status-badge">—</div>
+  </header>
+
+  <div id="setup-msg" class="setup-msg hidden">El torneo aún no ha comenzado. Volvé pronto.</div>
+
+  <div id="groups-section" class="section hidden">
+    <div class="section-title">⚽ FASE DE GRUPOS</div>
+    <div class="groups-grid" id="groups-grid"></div>
+  </div>
+
+  <div class="divider" id="divider" style="display:none"></div>
+
+  <div id="knockout-section" class="section hidden">
+    <div class="section-title">🏆 ELIMINATORIAS</div>
+    <div class="bracket-phases" id="bracket"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyD3UbRDFPdw1pF00wUALt-Bedk8aFgnYfc",
+    authDomain: "haxball-2026.firebaseapp.com",
+    projectId: "haxball-2026",
+    storageBucket: "haxball-2026.firebasestorage.app",
+    messagingSenderId: "35167072757",
+    appId: "1:35167072757:web:d52f59c4a27a03c3c9b0bc"
+  });
+  const db = firebase.firestore();
+
+  let state = { config: null, teams: [], matches: [] };
+  let loaded = { config: false, teams: false, matches: false };
+
+  function tryRender() {
+    if (!loaded.config || !loaded.teams || !loaded.matches) return;
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    render();
+  }
+
+  db.doc('tournament/config').onSnapshot(s => {
+    state.config = s.exists ? s.data() : null;
+    loaded.config = true; tryRender();
+  });
+  db.collection('teams').onSnapshot(s => {
+    state.teams = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    loaded.teams = true; tryRender();
+  });
+  db.collection('matches').onSnapshot(s => {
+    state.matches = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    loaded.matches = true; tryRender();
+  });
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function calcStandings(group) {
+    const ts = state.teams.filter(t => t.group === group);
+    const ms = state.matches.filter(m => m.phase === 'group' && m.group === group && m.status === 'completed');
+    const map = {};
+    ts.forEach(t => { map[t.id] = { id:t.id, name:t.name, pj:0, g:0, p:0, gf:0, gc:0, gd:0, pts:0 }; });
+    ms.forEach(m => {
+      const a = map[m.team1Id], b = map[m.team2Id];
+      if (!a || !b) return;
+      a.pj++; b.pj++;
+      a.gf += m.score1; a.gc += m.score2;
+      b.gf += m.score2; b.gc += m.score1;
+      if (m.score1 > m.score2) { a.g++; a.pts += 3; b.p++; }
+      else { b.g++; b.pts += 3; a.p++; }
+    });
+    Object.values(map).forEach(s => s.gd = s.gf - s.gc);
+    return Object.values(map).sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.gd !== a.gd) return b.gd - a.gd;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      for (const m of ms) {
+        if (m.team1Id === a.id && m.team2Id === b.id) return m.score1 > m.score2 ? -1 : 1;
+        if (m.team1Id === b.id && m.team2Id === a.id) return m.score2 > m.score1 ? -1 : 1;
+      }
+      return 0;
+    });
+  }
+
+  function render() {
+    const { config } = state;
+    if (!config) return;
+    const labels = { setup:'CONFIGURACIÓN', groups:'FASE DE GRUPOS', knockouts:'ELIMINATORIAS', finished:'TORNEO FINALIZADO' };
+    document.getElementById('status-badge').textContent = labels[config.status] || config.status;
+
+    const showGroups = config.status !== 'setup';
+    const showKO = config.status === 'knockouts' || config.status === 'finished';
+    document.getElementById('setup-msg').classList.toggle('hidden', !( config.status === 'setup'));
+    document.getElementById('groups-section').classList.toggle('hidden', !showGroups);
+    document.getElementById('knockout-section').classList.toggle('hidden', !showKO);
+    document.getElementById('divider').style.display = (showGroups && showKO) ? '' : 'none';
+
+    if (showGroups) {
+      document.getElementById('groups-grid').innerHTML = ['A','B','C','D'].map(g => groupCardHtml(g)).join('');
+    }
+    if (showKO) renderKnockout();
+  }
+
+  function groupCardHtml(group) {
+    const st = calcStandings(group);
+    const ms = state.matches.filter(m => m.phase === 'group' && m.group === group).sort((a,b) => a.order - b.order);
+    const allDone = ms.length === 6 && ms.every(m => m.status === 'completed');
+
+    const rows = st.map((s, i) => `<tr class="${allDone && i < 2 ? 'qualifier' : ''}">
+      <td class="col-team"><span class="pos">${i+1}</span>${esc(s.name)}</td>
+      <td>${s.pj}</td><td>${s.g}</td><td>${s.p}</td>
+      <td>${s.gf}</td><td>${s.gc}</td>
+      <td>${s.gd > 0 ? '+' : ''}${s.gd}</td>
+      <td class="pts-col">${s.pts}</td>
+    </tr>`).join('');
+
+    const matchRows = ms.map(m => {
+      const t1w = m.status === 'completed' && m.winnerId === m.team1Id;
+      const t2w = m.status === 'completed' && m.winnerId === m.team2Id;
+      const score = m.status === 'completed'
+        ? `<div class="ms">${m.score1} - ${m.score2}</div>`
+        : `<div class="ms pend">vs</div>`;
+      return `<div class="match-row">
+        <div class="mt ${t1w?'w':''}">${esc(m.team1Name)}</div>
+        ${score}
+        <div class="mt r ${t2w?'w':''}">${esc(m.team2Name)}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="group-card">
+      <div class="group-card-header">GRUPO ${group}</div>
+      <div style="padding:8px 4px">
+        <table class="standings">
+          <thead><tr>
+            <th class="col-team">Equipo</th>
+            <th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="matches-list">${matchRows}</div>
+    </div>`;
+  }
+
+  function renderKnockout() {
+    const qfs = state.matches.filter(m => m.phase === 'quarterfinal').sort((a,b) => a.order - b.order);
+    const sfs = state.matches.filter(m => m.phase === 'semifinal').sort((a,b) => a.order - b.order);
+    const fin = state.matches.find(m => m.phase === 'final');
+    let html = '';
+
+    if (qfs.length) html += `<div><div class="phase-label">⚔ CUARTOS DE FINAL</div>
+      <div class="phase-grid qf">${qfs.map((m,i) => mcardHtml(m,`QF${i+1}`)).join('')}</div></div>`;
+
+    if (sfs.length) html += `<div><div class="phase-label">🔥 SEMIFINALES</div>
+      <div class="phase-grid sf">${sfs.map((m,i) => mcardHtml(m,`SF${i+1}`)).join('')}</div></div>`;
+
+    if (fin) html += `<div><div class="phase-label">🏆 FINAL</div>
+      <div class="phase-grid fn">${mcardHtml(fin,'FINAL')}</div>
+      ${fin.winnerName ? `<div class="champion">🏆 CAMPEÓN: ${esc(fin.winnerName)}</div>` : ''}</div>`;
+
+    document.getElementById('bracket').innerHTML = html || '<p style="text-align:center;color:#333;padding:20px;letter-spacing:0.1em">Las llaves se arman al finalizar la fase de grupos.</p>';
+  }
+
+  function mcardHtml(m, label) {
+    if (!m) return `<div class="mcard"><div class="mcard-label">${label}</div>
+      <div class="mcard-team"><div class="mcard-tname tbd">TBD</div></div>
+      <div class="mcard-team"><div class="mcard-tname tbd">TBD</div></div></div>`;
+    const t1w = m.status === 'completed' && m.winnerId === m.team1Id;
+    const t2w = m.status === 'completed' && m.winnerId === m.team2Id;
+    return `<div class="mcard ${m.status==='completed'?'done':''}">
+      <div class="mcard-label">${label}</div>
+      <div class="mcard-team ${t1w?'win':''}">
+        <div class="mcard-tname ${!m.team1Name?'tbd':t1w?'wname':''}">${esc(m.team1Name||'TBD')}</div>
+        <div class="mcard-score ${t1w?'wscore':''}">${m.status==='completed'?m.score1:''}</div>
+      </div>
+      <div class="mcard-team ${t2w?'win':''}">
+        <div class="mcard-tname ${!m.team2Name?'tbd':t2w?'wname':''}">${esc(m.team2Name||'TBD')}</div>
+        <div class="mcard-score ${t2w?'wscore':''}">${m.status==='completed'?m.score2:''}</div>
+      </div>
+    </div>`;
+  }
+</script>
+</body>
+</html>
