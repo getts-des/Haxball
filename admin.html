@@ -3,137 +3,187 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HaxBall Mundial 2026</title>
+  <title>Admin - HaxBall Mundial 2026</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Rajdhani',sans-serif;background:#0A0012;color:#E0E0E0;min-height:100vh}
 
-    .header{
-      background:linear-gradient(135deg,#1a0033 0%,#0A0012 50%,#1a0033 100%);
-      border-bottom:2px solid rgba(161,0,255,0.4);
-      padding:32px 20px 24px;text-align:center;position:relative;
+    /* HEADER */
+    .adm-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 20px;
+      background:rgba(10,0,18,0.95);
+      border-bottom:1px solid rgba(161,0,255,0.2);
+      position:sticky;top:0;z-index:50;
+      backdrop-filter:blur(8px);
     }
-    .header-topline{position:absolute;top:0;left:0;right:0;height:3px;
-      background:linear-gradient(90deg,transparent,#A100FF,#C040FF,#A100FF,transparent)}
-    .header h1{font-size:clamp(22px,5vw,46px);font-weight:700;letter-spacing:0.18em;color:#fff;
-      text-shadow:0 0 30px rgba(161,0,255,0.6);margin-bottom:4px}
-    .header-sub{font-size:12px;letter-spacing:0.35em;color:#A100FF;margin-bottom:12px}
-    .status-badge{display:inline-block;padding:4px 18px;border-radius:20px;
-      font-size:11px;font-weight:700;letter-spacing:0.25em;
-      border:1px solid rgba(161,0,255,0.5);background:rgba(161,0,255,0.12);color:#C040FF}
-    .admin-link{position:absolute;top:14px;right:16px;font-size:11px;color:#333;
-      text-decoration:none;letter-spacing:0.1em;padding:4px 10px;
-      border:1px solid #222;border-radius:6px;transition:all 0.2s}
-    .admin-link:hover{color:#A100FF;border-color:rgba(161,0,255,0.4)}
+    .adm-header-left{display:flex;align-items:center;gap:12px}
+    .back-link{font-size:12px;color:#444;text-decoration:none;letter-spacing:0.1em;
+      padding:4px 10px;border:1px solid #222;border-radius:6px;transition:all 0.2s}
+    .back-link:hover{color:#A100FF;border-color:rgba(161,0,255,0.4)}
+    .adm-badge{font-size:12px;font-weight:700;letter-spacing:0.2em;color:#A100FF}
+    .user-email{font-size:11px;color:#444}
+    .btn-logout{font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;
+      background:rgba(255,80,80,0.1);color:#F87171;border:1px solid rgba(255,80,80,0.2);
+      font-family:inherit;font-weight:600;letter-spacing:0.1em;transition:all 0.2s}
+    .btn-logout:hover{background:rgba(255,80,80,0.2)}
+    .btn-reset{font-size:12px;padding:6px 14px;border-radius:8px;cursor:pointer;
+      background:rgba(255,140,0,0.1);color:#FFA040;border:1px solid rgba(255,140,0,0.25);
+      font-family:inherit;font-weight:600;letter-spacing:0.1em;transition:all 0.2s}
+    .btn-reset:hover{background:rgba(255,140,0,0.2)}
 
-    .section{max-width:1200px;margin:0 auto;padding:32px 16px}
-    .section-title{font-size:18px;font-weight:700;letter-spacing:0.2em;
-      color:#C040FF;margin-bottom:24px;text-align:center}
-    .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(161,0,255,0.3),transparent);margin:8px 0}
+    /* LOGIN */
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .login-box{background:#10001F;border:1px solid rgba(161,0,255,0.25);border-radius:16px;
+      padding:40px 32px;width:100%;max-width:360px;text-align:center}
+    .login-title{font-size:22px;font-weight:700;letter-spacing:0.15em;color:#fff;margin-bottom:6px}
+    .login-sub{font-size:12px;color:#555;letter-spacing:0.15em;margin-bottom:28px}
+    .form-group{margin-bottom:16px;text-align:left}
+    .form-label{display:block;font-size:11px;letter-spacing:0.15em;color:#666;margin-bottom:6px}
+    .form-input{width:100%;padding:10px 14px;background:#0A0012;border:1px solid rgba(161,0,255,0.2);
+      border-radius:8px;color:#E0E0E0;font-family:inherit;font-size:14px;outline:none;transition:border 0.2s}
+    .form-input:focus{border-color:#A100FF}
+    .btn-primary{width:100%;padding:12px;border-radius:8px;cursor:pointer;
+      background:linear-gradient(135deg,#7000CC,#A100FF);color:#fff;border:none;
+      font-family:inherit;font-size:14px;font-weight:700;letter-spacing:0.15em;
+      transition:opacity 0.2s;margin-top:8px}
+    .btn-primary:hover{opacity:0.85}
+    .btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+    .error-msg{color:#F87171;font-size:12px;margin-top:10px;min-height:16px}
 
-    .groups-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
-    .group-card{background:#10001F;border:1px solid rgba(161,0,255,0.2);border-radius:12px;overflow:hidden}
-    .group-card-header{background:rgba(161,0,255,0.15);padding:10px 16px;
-      font-size:13px;font-weight:700;letter-spacing:0.2em;color:#A100FF}
+    /* ADMIN PANEL */
+    .panel{max-width:960px;margin:0 auto;padding:28px 16px}
+    .panel-title{font-size:16px;font-weight:700;letter-spacing:0.2em;color:#C040FF;margin-bottom:20px}
+    .panel-sub{font-size:12px;color:#555;margin-bottom:20px;letter-spacing:0.1em}
 
-    .standings{width:100%;border-collapse:collapse;font-size:12.5px}
-    .standings th{padding:6px;text-align:center;font-size:10px;letter-spacing:0.08em;
-      color:#555;font-weight:700;border-bottom:1px solid rgba(161,0,255,0.12)}
-    .standings th.col-team{text-align:left;padding-left:10px}
-    .standings td{padding:7px 6px;text-align:center;border-bottom:1px solid rgba(161,0,255,0.06)}
-    .standings td.col-team{text-align:left;padding-left:10px}
-    .standings tbody tr:last-child td{border-bottom:none}
-    .standings tr.qualifier td.col-team{border-left:2px solid #FFD700;padding-left:8px}
-    .standings tr.qualifier{background:rgba(255,215,0,0.05)}
-    .pos{color:#555;font-size:11px;margin-right:5px}
-    .pts-col{font-weight:700;color:#A100FF}
+    /* SETUP */
+    .groups-setup{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+    .setup-group{background:#10001F;border:1px solid rgba(161,0,255,0.2);border-radius:12px;padding:16px}
+    .setup-group-title{font-size:13px;font-weight:700;letter-spacing:0.2em;color:#A100FF;margin-bottom:12px}
+    .team-input{width:100%;padding:8px 12px;background:#0A0012;border:1px solid rgba(161,0,255,0.15);
+      border-radius:7px;color:#E0E0E0;font-family:inherit;font-size:13px;outline:none;
+      margin-bottom:8px;transition:border 0.2s}
+    .team-input:focus{border-color:#A100FF}
+    .team-input:last-child{margin-bottom:0}
 
-    .matches-list{padding:8px 8px 10px}
-    .match-row{display:flex;align-items:center;gap:6px;padding:6px 8px;
-      border-radius:7px;margin-bottom:3px;background:rgba(255,255,255,0.02);font-size:12.5px}
-    .match-row:last-child{margin-bottom:0}
-    .mt{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .mt.r{text-align:right}
-    .mt.w{color:#FFD700}
-    .ms{padding:2px 10px;background:rgba(161,0,255,0.12);border-radius:5px;
-      font-weight:700;font-size:13px;white-space:nowrap;flex-shrink:0}
-    .ms.pend{color:#444;font-weight:400;font-size:11px}
+    .btn-start{padding:14px 32px;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,#7000CC,#A100FF);color:#fff;border:none;
+      font-family:inherit;font-size:15px;font-weight:700;letter-spacing:0.15em;
+      display:block;margin:0 auto;transition:opacity 0.2s}
+    .btn-start:hover{opacity:0.85}
+    .btn-start:disabled{opacity:0.4;cursor:not-allowed}
 
-    .bracket-phases{display:flex;flex-direction:column;gap:28px}
-    .phase-label{font-size:13px;font-weight:700;letter-spacing:0.2em;color:#A100FF;
-      text-align:center;margin-bottom:14px}
-    .phase-grid{display:grid;gap:12px}
-    .phase-grid.qf{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-    .phase-grid.sf{grid-template-columns:repeat(2,1fr);max-width:520px;margin:0 auto;width:100%}
-    .phase-grid.fn{grid-template-columns:1fr;max-width:260px;margin:0 auto;width:100%}
+    /* MATCH ENTRY */
+    .phase-section{margin-bottom:32px}
+    .phase-header{font-size:14px;font-weight:700;letter-spacing:0.2em;color:#A100FF;
+      margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(161,0,255,0.15)}
+    .counter{font-size:12px;color:#555;font-weight:400;margin-left:10px}
+    .match-entry{display:flex;align-items:center;gap:8px;padding:10px 12px;
+      background:#10001F;border:1px solid rgba(161,0,255,0.12);border-radius:9px;
+      margin-bottom:8px;flex-wrap:wrap}
+    .match-entry.done{border-color:rgba(255,215,0,0.15);background:#0f001a}
+    .m-team{flex:1;font-weight:600;font-size:13px;min-width:80px;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .m-team.right{text-align:right}
+    .score-input{width:52px;padding:6px 8px;background:#0A0012;border:1px solid rgba(161,0,255,0.2);
+      border-radius:6px;color:#E0E0E0;font-family:inherit;font-size:15px;font-weight:700;
+      text-align:center;outline:none;transition:border 0.2s}
+    .score-input:focus{border-color:#A100FF}
+    .score-sep{color:#555;font-size:13px;font-weight:700}
+    .btn-save{padding:7px 16px;border-radius:7px;cursor:pointer;
+      background:rgba(161,0,255,0.15);color:#C040FF;border:1px solid rgba(161,0,255,0.3);
+      font-family:inherit;font-size:12px;font-weight:700;letter-spacing:0.1em;
+      white-space:nowrap;transition:all 0.2s}
+    .btn-save:hover{background:rgba(161,0,255,0.25)}
+    .btn-edit{padding:7px 14px;border-radius:7px;cursor:pointer;
+      background:rgba(255,255,255,0.04);color:#555;border:1px solid #222;
+      font-family:inherit;font-size:12px;letter-spacing:0.1em;transition:all 0.2s}
+    .btn-edit:hover{color:#E0E0E0;border-color:#444}
+    .result-display{padding:4px 12px;background:rgba(161,0,255,0.1);border-radius:6px;
+      font-weight:700;font-size:14px;color:#E0E0E0;white-space:nowrap}
+    .winner-tag{font-size:11px;color:#FFD700;font-weight:700;white-space:nowrap}
 
-    .mcard{background:#0F001E;border:1px solid rgba(161,0,255,0.25);border-radius:10px;overflow:hidden}
-    .mcard.done{border-color:rgba(255,215,0,0.25);box-shadow:0 0 12px rgba(255,215,0,0.06)}
-    .mcard-label{padding:4px 12px;font-size:10px;letter-spacing:0.15em;color:#555;
-      border-bottom:1px solid rgba(161,0,255,0.08)}
-    .mcard-team{display:flex;justify-content:space-between;align-items:center;
-      padding:10px 12px;border-bottom:1px solid rgba(161,0,255,0.08)}
-    .mcard-team:last-of-type{border-bottom:none}
-    .mcard-team.win{background:rgba(255,215,0,0.07)}
-    .mcard-tname{font-weight:600;font-size:13px}
-    .mcard-tname.tbd{color:#333}
-    .mcard-tname.wname{color:#FFD700}
-    .mcard-score{font-weight:700;font-size:15px;color:#555}
-    .mcard-score.wscore{color:#FFD700}
+    .btn-advance{padding:14px 28px;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,#005500,#00AA00);color:#fff;border:none;
+      font-family:inherit;font-size:14px;font-weight:700;letter-spacing:0.15em;
+      display:block;margin:20px auto 0;transition:opacity 0.2s}
+    .btn-advance:hover{opacity:0.85}
+    .btn-advance:disabled{opacity:0.4;cursor:not-allowed}
 
-    .champion{text-align:center;margin:20px auto 0;padding:14px 24px;
-      background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.35);
-      border-radius:12px;max-width:380px;color:#FFD700;font-size:18px;
-      font-weight:700;letter-spacing:0.15em;box-shadow:0 0 28px rgba(255,215,0,0.15)}
+    .btn-finish{padding:14px 28px;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,#AA7700,#FFD700);color:#000;border:none;
+      font-family:inherit;font-size:14px;font-weight:700;letter-spacing:0.15em;
+      display:block;margin:20px auto 0;transition:opacity 0.2s}
+    .btn-finish:hover{opacity:0.85}
+
+    .pending-phase{text-align:center;padding:20px;color:#333;
+      font-size:13px;letter-spacing:0.1em;border:1px dashed #222;border-radius:10px}
+
+    .alert{padding:10px 16px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:600}
+    .alert.err{background:rgba(255,80,80,0.1);border:1px solid rgba(255,80,80,0.3);color:#F87171}
+    .alert.ok{background:rgba(0,200,0,0.08);border:1px solid rgba(0,200,0,0.2);color:#4CAF50}
 
     .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;gap:14px}
     .spinner{width:38px;height:38px;border-radius:50%;border:3px solid rgba(161,0,255,0.15);
       border-top-color:#A100FF;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loading-txt{color:#444;font-size:13px;letter-spacing:0.2em}
     .hidden{display:none!important}
-    .setup-msg{text-align:center;padding:60px 20px;color:#444;font-size:16px;letter-spacing:0.1em}
 
-    @media(max-width:580px){
-      .groups-grid{grid-template-columns:1fr}
-      .phase-grid.sf{grid-template-columns:1fr}
+    @media(max-width:600px){
+      .groups-setup{grid-template-columns:1fr 1fr}
+      .match-entry{gap:5px}
+      .m-team{font-size:11px}
+    }
+    @media(max-width:400px){
+      .groups-setup{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loading" class="loading">
   <div class="spinner"></div>
-  <div class="loading-txt">CARGANDO TORNEO...</div>
 </div>
 
-<div id="app" class="hidden">
-  <header class="header">
-    <div class="header-topline"></div>
-    <a href="admin.html" class="admin-link">Admin</a>
-    <h1>HAXBALL MUNDIAL 2026</h1>
-    <div class="header-sub">ACCENTURE · EDICIÓN INTERNA</div>
-    <div id="status-badge" class="status-badge">—</div>
-  </header>
-
-  <div id="setup-msg" class="setup-msg hidden">El torneo aún no ha comenzado. Volvé pronto.</div>
-
-  <div id="groups-section" class="section hidden">
-    <div class="section-title">⚽ FASE DE GRUPOS</div>
-    <div class="groups-grid" id="groups-grid"></div>
+<!-- LOGIN -->
+<div id="login-section" class="login-wrap hidden">
+  <div class="login-box">
+    <div class="login-title">🔐 ADMIN</div>
+    <div class="login-sub">HAXBALL MUNDIAL 2026</div>
+    <div class="form-group">
+      <label class="form-label">EMAIL</label>
+      <input class="form-input" type="email" id="email-input" placeholder="admin@ejemplo.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">CONTRASEÑA</label>
+      <input class="form-input" type="password" id="pass-input" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" id="login-btn" onclick="doLogin()">INGRESAR</button>
+    <div class="error-msg" id="login-error"></div>
   </div>
+</div>
 
-  <div class="divider" id="divider" style="display:none"></div>
-
-  <div id="knockout-section" class="section hidden">
-    <div class="section-title">🏆 ELIMINATORIAS</div>
-    <div class="bracket-phases" id="bracket"></div>
+<!-- ADMIN APP -->
+<div id="admin-app" class="hidden">
+  <div class="adm-header">
+    <div class="adm-header-left">
+      <a href="index.html" class="back-link">← Ver torneo</a>
+      <span class="adm-badge">🔐 ADMIN</span>
+    </div>
+    <div class="adm-header-left">
+      <span class="user-email" id="user-email"></span>
+      <button class="btn-reset" onclick="resetTournament()">↺ Reset torneo</button>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
   </div>
+  <div class="panel" id="panel"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script>
   firebase.initializeApp({
     apiKey: "AIzaSyD3UbRDFPdw1pF00wUALt-Bedk8aFgnYfc",
@@ -144,34 +194,69 @@
     appId: "1:35167072757:web:d52f59c4a27a03c3c9b0bc"
   });
   const db = firebase.firestore();
+  const auth = firebase.auth();
 
   let state = { config: null, teams: [], matches: [] };
-  let loaded = { config: false, teams: false, matches: false };
+  let unsubs = [];
 
-  function tryRender() {
-    if (!loaded.config || !loaded.teams || !loaded.matches) return;
+  // ─── AUTH ───────────────────────────────────────────────
+  auth.onAuthStateChanged(user => {
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    render();
+    if (user) {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('admin-app').classList.remove('hidden');
+      document.getElementById('user-email').textContent = user.email;
+      startListeners();
+    } else {
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('admin-app').classList.add('hidden');
+      stopListeners();
+    }
+  });
+
+  function doLogin() {
+    const email = document.getElementById('email-input').value.trim();
+    const pass = document.getElementById('pass-input').value;
+    const btn = document.getElementById('login-btn');
+    const err = document.getElementById('login-error');
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Ingresando...';
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch(e => { err.textContent = 'Credenciales incorrectas.'; })
+      .finally(() => { btn.disabled = false; btn.textContent = 'INGRESAR'; });
   }
 
-  db.doc('tournament/config').onSnapshot(s => {
-    state.config = s.exists ? s.data() : null;
-    loaded.config = true; tryRender();
-  });
-  db.collection('teams').onSnapshot(s => {
-    state.teams = s.docs.map(d => ({ id: d.id, ...d.data() }));
-    loaded.teams = true; tryRender();
-  });
-  db.collection('matches').onSnapshot(s => {
-    state.matches = s.docs.map(d => ({ id: d.id, ...d.data() }));
-    loaded.matches = true; tryRender();
+  document.getElementById('pass-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
   });
 
-  function esc(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function doLogout() { auth.signOut(); }
+
+  // ─── FIRESTORE LISTENERS ─────────────────────────────────
+  function startListeners() {
+    stopListeners();
+    unsubs.push(db.doc('tournament/config').onSnapshot(async s => {
+      if (!s.exists) {
+        await db.doc('tournament/config').set({ status: 'setup', name: 'HAXBALL MUNDIAL 2026' });
+        return;
+      }
+      state.config = s.data();
+      renderPanel();
+    }));
+    unsubs.push(db.collection('teams').onSnapshot(s => {
+      state.teams = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPanel();
+    }));
+    unsubs.push(db.collection('matches').onSnapshot(s => {
+      state.matches = s.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderPanel();
+    }));
   }
 
+  function stopListeners() { unsubs.forEach(u => u()); unsubs = []; }
+
+  // ─── STANDINGS CALCULATION ───────────────────────────────
   function calcStandings(group) {
     const ts = state.teams.filter(t => t.group === group);
     const ms = state.matches.filter(m => m.phase === 'group' && m.group === group && m.status === 'completed');
@@ -180,8 +265,7 @@
     ms.forEach(m => {
       const a = map[m.team1Id], b = map[m.team2Id];
       if (!a || !b) return;
-      a.pj++; b.pj++;
-      a.gf += m.score1; a.gc += m.score2;
+      a.pj++; b.pj++; a.gf += m.score1; a.gc += m.score2;
       b.gf += m.score2; b.gc += m.score1;
       if (m.score1 > m.score2) { a.g++; a.pts += 3; b.p++; }
       else { b.g++; b.pts += 3; a.p++; }
@@ -199,102 +283,316 @@
     });
   }
 
-  function render() {
-    const { config } = state;
-    if (!config) return;
-    const labels = { setup:'CONFIGURACIÓN', groups:'FASE DE GRUPOS', knockouts:'ELIMINATORIAS', finished:'TORNEO FINALIZADO' };
-    document.getElementById('status-badge').textContent = labels[config.status] || config.status;
+  // ─── RENDER PANEL ────────────────────────────────────────
+  function renderPanel() {
+    if (!state.config) return;
+    const status = state.config.status;
+    const panel = document.getElementById('panel');
 
-    const showGroups = config.status !== 'setup';
-    const showKO = config.status === 'knockouts' || config.status === 'finished';
-    document.getElementById('setup-msg').classList.toggle('hidden', !( config.status === 'setup'));
-    document.getElementById('groups-section').classList.toggle('hidden', !showGroups);
-    document.getElementById('knockout-section').classList.toggle('hidden', !showKO);
-    document.getElementById('divider').style.display = (showGroups && showKO) ? '' : 'none';
-
-    if (showGroups) {
-      document.getElementById('groups-grid').innerHTML = ['A','B','C','D'].map(g => groupCardHtml(g)).join('');
-    }
-    if (showKO) renderKnockout();
+    if (status === 'setup') panel.innerHTML = renderSetup();
+    else if (status === 'groups') panel.innerHTML = renderGroupsPhase();
+    else if (status === 'knockouts' || status === 'finished') panel.innerHTML = renderKnockoutsPhase();
   }
 
-  function groupCardHtml(group) {
-    const st = calcStandings(group);
-    const ms = state.matches.filter(m => m.phase === 'group' && m.group === group).sort((a,b) => a.order - b.order);
-    const allDone = ms.length === 6 && ms.every(m => m.status === 'completed');
+  // ─── SETUP PHASE ─────────────────────────────────────────
+  function renderSetup() {
+    const groups = ['A','B','C','D'];
+    const cols = groups.map(g => `
+      <div class="setup-group">
+        <div class="setup-group-title">GRUPO ${g}</div>
+        <input class="team-input" placeholder="Equipo 1" id="g${g}t1">
+        <input class="team-input" placeholder="Equipo 2" id="g${g}t2">
+        <input class="team-input" placeholder="Equipo 3" id="g${g}t3">
+        <input class="team-input" placeholder="Equipo 4" id="g${g}t4">
+      </div>`).join('');
 
-    const rows = st.map((s, i) => `<tr class="${allDone && i < 2 ? 'qualifier' : ''}">
-      <td class="col-team"><span class="pos">${i+1}</span>${esc(s.name)}</td>
-      <td>${s.pj}</td><td>${s.g}</td><td>${s.p}</td>
-      <td>${s.gf}</td><td>${s.gc}</td>
-      <td>${s.gd > 0 ? '+' : ''}${s.gd}</td>
-      <td class="pts-col">${s.pts}</td>
-    </tr>`).join('');
+    return `<div class="panel-title">⚙ CONFIGURACIÓN DEL TORNEO</div>
+      <div class="panel-sub">Ingresá los 16 equipos y hacé click en Iniciar Torneo</div>
+      <div class="groups-setup">${cols}</div>
+      <div id="setup-alert"></div>
+      <button class="btn-start" onclick="initTournament()">INICIAR TORNEO</button>`;
+  }
 
-    const matchRows = ms.map(m => {
-      const t1w = m.status === 'completed' && m.winnerId === m.team1Id;
-      const t2w = m.status === 'completed' && m.winnerId === m.team2Id;
-      const score = m.status === 'completed'
-        ? `<div class="ms">${m.score1} - ${m.score2}</div>`
-        : `<div class="ms pend">vs</div>`;
-      return `<div class="match-row">
-        <div class="mt ${t1w?'w':''}">${esc(m.team1Name)}</div>
-        ${score}
-        <div class="mt r ${t2w?'w':''}">${esc(m.team2Name)}</div>
+  async function initTournament() {
+    const groups = ['A','B','C','D'];
+    const allTeams = [];
+    for (const g of groups) {
+      for (let i = 1; i <= 4; i++) {
+        const val = document.getElementById(`g${g}t${i}`).value.trim();
+        if (!val) {
+          document.getElementById('setup-alert').innerHTML = '<div class="alert err">Completá los 16 equipos antes de iniciar.</div>';
+          return;
+        }
+        allTeams.push({ name: val, group: g });
+      }
+    }
+
+    const btn = document.querySelector('.btn-start');
+    btn.disabled = true; btn.textContent = 'Iniciando...';
+
+    try {
+      const batch = db.batch();
+      const teamRefs = { A:[], B:[], C:[], D:[] };
+
+      for (const t of allTeams) {
+        const ref = db.collection('teams').doc();
+        batch.set(ref, { name: t.name, group: t.group });
+        teamRefs[t.group].push({ id: ref.id, name: t.name });
+      }
+
+      const pairs = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
+      let order = 0;
+      for (const g of groups) {
+        const gt = teamRefs[g];
+        for (const [i, j] of pairs) {
+          const ref = db.collection('matches').doc();
+          batch.set(ref, {
+            phase: 'group', group: g, order: order++,
+            team1Id: gt[i].id, team2Id: gt[j].id,
+            team1Name: gt[i].name, team2Name: gt[j].name,
+            score1: null, score2: null, winnerId: null, winnerName: null,
+            status: 'pending'
+          });
+        }
+      }
+
+      batch.update(db.doc('tournament/config'), { status: 'groups' });
+      await batch.commit();
+    } catch (e) {
+      document.getElementById('setup-alert').innerHTML = `<div class="alert err">Error: ${e.message}</div>`;
+      btn.disabled = false; btn.textContent = 'INICIAR TORNEO';
+    }
+  }
+
+  // ─── GROUPS PHASE ────────────────────────────────────────
+  function renderGroupsPhase() {
+    const gMatches = state.matches.filter(m => m.phase === 'group');
+    const done = gMatches.filter(m => m.status === 'completed').length;
+    const total = gMatches.length;
+    const allDone = done === total && total === 24;
+
+    const sections = ['A','B','C','D'].map(g => {
+      const ms = gMatches.filter(m => m.group === g).sort((a,b) => a.order - b.order);
+      const rows = ms.map(m => matchEntryRow(m)).join('');
+      return `<div class="phase-section">
+        <div class="phase-header">GRUPO ${g}</div>
+        ${rows}
       </div>`;
     }).join('');
 
-    return `<div class="group-card">
-      <div class="group-card-header">GRUPO ${group}</div>
-      <div style="padding:8px 4px">
-        <table class="standings">
-          <thead><tr>
-            <th class="col-team">Equipo</th>
-            <th>PJ</th><th>G</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>PTS</th>
-          </tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-      <div class="matches-list">${matchRows}</div>
+    const advBtn = allDone
+      ? `<button class="btn-advance" onclick="advanceToKnockouts()">⚡ AVANZAR A CUARTOS DE FINAL</button>`
+      : `<button class="btn-advance" disabled>⚡ AVANZAR A CUARTOS (${done}/${total} partidos)</button>`;
+
+    return `<div class="panel-title">⚽ FASE DE GRUPOS <span class="counter">${done}/${total} completados</span></div>
+      <div id="groups-alert"></div>
+      ${sections}
+      ${advBtn}`;
+  }
+
+  function matchEntryRow(m) {
+    const isDone = m.status === 'completed';
+    const t1w = isDone && m.winnerId === m.team1Id;
+    const t2w = isDone && m.winnerId === m.team2Id;
+
+    if (isDone) {
+      return `<div class="match-entry done" id="match-${m.id}">
+        <div class="m-team ${t1w?'':''}">
+          ${t1w ? '<span class="winner-tag">▶ </span>' : ''}${esc(m.team1Name)}
+        </div>
+        <div class="result-display">${m.score1} - ${m.score2}</div>
+        <div class="m-team right">
+          ${esc(m.team2Name)}${t2w ? ' <span class="winner-tag">◀</span>' : ''}
+        </div>
+        <button class="btn-edit" onclick="editMatch('${m.id}')">Editar</button>
+      </div>`;
+    }
+
+    return `<div class="match-entry" id="match-${m.id}">
+      <div class="m-team">${esc(m.team1Name)}</div>
+      <input class="score-input" type="number" min="0" max="99" id="s1-${m.id}" placeholder="0">
+      <span class="score-sep">-</span>
+      <input class="score-input" type="number" min="0" max="99" id="s2-${m.id}" placeholder="0">
+      <div class="m-team right">${esc(m.team2Name)}</div>
+      <button class="btn-save" onclick="saveMatch('${m.id}','${m.team1Id}','${m.team2Id}','${esc(m.team1Name)}','${esc(m.team2Name)}')">Guardar</button>
     </div>`;
   }
 
-  function renderKnockout() {
+  function editMatch(matchId) {
+    const m = state.matches.find(x => x.id === matchId);
+    if (!m) return;
+    const el = document.getElementById(`match-${matchId}`);
+    if (!el) return;
+    el.outerHTML = `<div class="match-entry" id="match-${m.id}">
+      <div class="m-team">${esc(m.team1Name)}</div>
+      <input class="score-input" type="number" min="0" max="99" id="s1-${m.id}" value="${m.score1}">
+      <span class="score-sep">-</span>
+      <input class="score-input" type="number" min="0" max="99" id="s2-${m.id}" value="${m.score2}">
+      <div class="m-team right">${esc(m.team2Name)}</div>
+      <button class="btn-save" onclick="saveMatch('${m.id}','${m.team1Id}','${m.team2Id}','${esc(m.team1Name)}','${esc(m.team2Name)}')">Guardar</button>
+    </div>`;
+  }
+
+  async function saveMatch(matchId, t1Id, t2Id, t1Name, t2Name) {
+    const s1 = parseInt(document.getElementById(`s1-${matchId}`)?.value);
+    const s2 = parseInt(document.getElementById(`s2-${matchId}`)?.value);
+    if (isNaN(s1) || isNaN(s2) || s1 < 0 || s2 < 0) { alert('Ingresá puntajes válidos.'); return; }
+    if (s1 === s2) { alert('No puede haber empate. Ingresá resultados distintos.'); return; }
+    const winnerId = s1 > s2 ? t1Id : t2Id;
+    const winnerName = s1 > s2 ? t1Name : t2Name;
+    await db.doc(`matches/${matchId}`).update({ score1: s1, score2: s2, winnerId, winnerName, status: 'completed' });
+  }
+
+  async function advanceToKnockouts() {
+    const btn = document.querySelector('.btn-advance');
+    btn.disabled = true; btn.textContent = 'Calculando...';
+    try {
+      const groups = ['A','B','C','D'];
+      const top2 = {};
+      for (const g of groups) {
+        const st = calcStandings(g);
+        top2[g] = st.slice(0,2).map(s => ({ id: s.id, name: s.name }));
+      }
+
+      // QF crossover: QF1=1A vs 2B, QF2=1C vs 2D, QF3=1B vs 2A, QF4=1D vs 2C
+      const qfs = [
+        { t1: top2.A[0], t2: top2.B[1], order: 0 },
+        { t1: top2.C[0], t2: top2.D[1], order: 1 },
+        { t1: top2.B[0], t2: top2.A[1], order: 2 },
+        { t1: top2.D[0], t2: top2.C[1], order: 3 },
+      ];
+
+      const batch = db.batch();
+      for (const qf of qfs) {
+        const ref = db.collection('matches').doc();
+        batch.set(ref, {
+          phase: 'quarterfinal', group: null, order: qf.order,
+          team1Id: qf.t1.id, team2Id: qf.t2.id,
+          team1Name: qf.t1.name, team2Name: qf.t2.name,
+          score1: null, score2: null, winnerId: null, winnerName: null,
+          status: 'pending'
+        });
+      }
+      batch.update(db.doc('tournament/config'), { status: 'knockouts' });
+      await batch.commit();
+    } catch(e) {
+      alert('Error al avanzar: ' + e.message);
+      btn.disabled = false; btn.textContent = '⚡ AVANZAR A CUARTOS DE FINAL';
+    }
+  }
+
+  // ─── KNOCKOUTS PHASE ─────────────────────────────────────
+  function renderKnockoutsPhase() {
     const qfs = state.matches.filter(m => m.phase === 'quarterfinal').sort((a,b) => a.order - b.order);
     const sfs = state.matches.filter(m => m.phase === 'semifinal').sort((a,b) => a.order - b.order);
     const fin = state.matches.find(m => m.phase === 'final');
-    let html = '';
 
-    if (qfs.length) html += `<div><div class="phase-label">⚔ CUARTOS DE FINAL</div>
-      <div class="phase-grid qf">${qfs.map((m,i) => mcardHtml(m,`QF${i+1}`)).join('')}</div></div>`;
+    const qfDone = qfs.length === 4 && qfs.every(m => m.status === 'completed');
+    const sfDone = sfs.length === 2 && sfs.every(m => m.status === 'completed');
+    const finDone = fin && fin.status === 'completed';
 
-    if (sfs.length) html += `<div><div class="phase-label">🔥 SEMIFINALES</div>
-      <div class="phase-grid sf">${sfs.map((m,i) => mcardHtml(m,`SF${i+1}`)).join('')}</div></div>`;
+    let html = `<div class="panel-title">🏆 ELIMINATORIAS</div>`;
 
-    if (fin) html += `<div><div class="phase-label">🏆 FINAL</div>
-      <div class="phase-grid fn">${mcardHtml(fin,'FINAL')}</div>
-      ${fin.winnerName ? `<div class="champion">🏆 CAMPEÓN: ${esc(fin.winnerName)}</div>` : ''}</div>`;
+    // QF
+    html += `<div class="phase-section">
+      <div class="phase-header">CUARTOS DE FINAL</div>
+      ${qfs.map(m => matchEntryRow(m)).join('')}
+    </div>`;
 
-    document.getElementById('bracket').innerHTML = html || '<p style="text-align:center;color:#333;padding:20px;letter-spacing:0.1em">Las llaves se arman al finalizar la fase de grupos.</p>';
+    // SF
+    html += `<div class="phase-section"><div class="phase-header">SEMIFINALES</div>`;
+    if (sfs.length > 0) {
+      html += sfs.map(m => matchEntryRow(m)).join('');
+    } else if (qfDone) {
+      html += `<div class="pending-phase">Listo para crear. Hacé click en el botón de abajo.</div>`;
+    } else {
+      html += `<div class="pending-phase">Esperando que terminen los cuartos.</div>`;
+    }
+    html += `</div>`;
+
+    // Final
+    html += `<div class="phase-section"><div class="phase-header">FINAL</div>`;
+    if (fin) {
+      html += matchEntryRow(fin);
+    } else if (sfDone) {
+      html += `<div class="pending-phase">Listo para crear. Hacé click en el botón de abajo.</div>`;
+    } else {
+      html += `<div class="pending-phase">Esperando que terminen las semifinales.</div>`;
+    }
+    html += `</div>`;
+
+    // Action buttons
+    if (qfDone && sfs.length === 0) {
+      html += `<button class="btn-advance" onclick="createSemifinals()">⚡ CREAR SEMIFINALES</button>`;
+    } else if (sfDone && !fin) {
+      html += `<button class="btn-advance" onclick="createFinal()">⚡ CREAR FINAL</button>`;
+    } else if (finDone && state.config.status !== 'finished') {
+      html += `<button class="btn-finish" onclick="finishTournament()">🏆 FINALIZAR TORNEO</button>`;
+    }
+
+    return html;
   }
 
-  function mcardHtml(m, label) {
-    if (!m) return `<div class="mcard"><div class="mcard-label">${label}</div>
-      <div class="mcard-team"><div class="mcard-tname tbd">TBD</div></div>
-      <div class="mcard-team"><div class="mcard-tname tbd">TBD</div></div></div>`;
-    const t1w = m.status === 'completed' && m.winnerId === m.team1Id;
-    const t2w = m.status === 'completed' && m.winnerId === m.team2Id;
-    return `<div class="mcard ${m.status==='completed'?'done':''}">
-      <div class="mcard-label">${label}</div>
-      <div class="mcard-team ${t1w?'win':''}">
-        <div class="mcard-tname ${!m.team1Name?'tbd':t1w?'wname':''}">${esc(m.team1Name||'TBD')}</div>
-        <div class="mcard-score ${t1w?'wscore':''}">${m.status==='completed'?m.score1:''}</div>
-      </div>
-      <div class="mcard-team ${t2w?'win':''}">
-        <div class="mcard-tname ${!m.team2Name?'tbd':t2w?'wname':''}">${esc(m.team2Name||'TBD')}</div>
-        <div class="mcard-score ${t2w?'wscore':''}">${m.status==='completed'?m.score2:''}</div>
-      </div>
-    </div>`;
+  async function createSemifinals() {
+    const qfs = state.matches.filter(m => m.phase === 'quarterfinal').sort((a,b) => a.order - b.order);
+    const batch = db.batch();
+    const sf1 = db.collection('matches').doc();
+    batch.set(sf1, {
+      phase:'semifinal', group:null, order:0,
+      team1Id:qfs[0].winnerId, team2Id:qfs[1].winnerId,
+      team1Name:qfs[0].winnerName, team2Name:qfs[1].winnerName,
+      score1:null, score2:null, winnerId:null, winnerName:null, status:'pending'
+    });
+    const sf2 = db.collection('matches').doc();
+    batch.set(sf2, {
+      phase:'semifinal', group:null, order:1,
+      team1Id:qfs[2].winnerId, team2Id:qfs[3].winnerId,
+      team1Name:qfs[2].winnerName, team2Name:qfs[3].winnerName,
+      score1:null, score2:null, winnerId:null, winnerName:null, status:'pending'
+    });
+    await batch.commit();
+  }
+
+  async function createFinal() {
+    const sfs = state.matches.filter(m => m.phase === 'semifinal').sort((a,b) => a.order - b.order);
+    await db.collection('matches').add({
+      phase:'final', group:null, order:0,
+      team1Id:sfs[0].winnerId, team2Id:sfs[1].winnerId,
+      team1Name:sfs[0].winnerName, team2Name:sfs[1].winnerName,
+      score1:null, score2:null, winnerId:null, winnerName:null, status:'pending'
+    });
+  }
+
+  async function finishTournament() {
+    await db.doc('tournament/config').update({ status: 'finished' });
+  }
+
+  // ─── UTILS ───────────────────────────────────────────────
+  async function resetTournament() {
+    const ok = confirm('¿Seguro que querés resetear el torneo? Se borran todos los equipos y partidos. Esta acción no se puede deshacer.');
+    if (!ok) return;
+    const ok2 = confirm('¿Confirmás el reset completo del torneo?');
+    if (!ok2) return;
+
+    try {
+      const batch = db.batch();
+
+      const teams = await db.collection('teams').get();
+      teams.forEach(d => batch.delete(d.ref));
+
+      const matches = await db.collection('matches').get();
+      matches.forEach(d => batch.delete(d.ref));
+
+      batch.set(db.doc('tournament/config'), { status: 'setup', name: 'HAXBALL MUNDIAL 2026' });
+
+      await batch.commit();
+    } catch(e) {
+      alert('Error al resetear: ' + e.message);
+    }
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 </script>
 </body>
