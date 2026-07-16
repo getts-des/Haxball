@@ -213,7 +213,8 @@
     document.getElementById('divider').style.display = (showGroups && showKO) ? '' : 'none';
 
     if (showGroups) {
-      document.getElementById('groups-grid').innerHTML = ['A','B','C','D'].map(g => groupCardHtml(g)).join('');
+      const groups = [...new Set(state.teams.map(t => t.group))].sort();
+      document.getElementById('groups-grid').innerHTML = groups.map(g => groupCardHtml(g)).join('');
     }
     if (showKO) renderKnockout();
   }
@@ -221,7 +222,9 @@
   function groupCardHtml(group) {
     const st = calcStandings(group);
     const ms = state.matches.filter(m => m.phase === 'group' && m.group === group).sort((a,b) => a.order - b.order);
-    const allDone = ms.length === 6 && ms.every(m => m.status === 'completed');
+    const tpg = state.config.teamsPerGroup || 4;
+    const expectedMatches = tpg * (tpg - 1) / 2;
+    const allDone = ms.length === expectedMatches && ms.every(m => m.status === 'completed');
 
     const rows = st.map((s, i) => `<tr class="${allDone && i < 2 ? 'qualifier' : ''}">
       <td class="col-team"><span class="pos">${i+1}</span>${esc(s.name)}</td>
@@ -259,21 +262,46 @@
     </div>`;
   }
 
+  function koRoundLabel(matchCount) {
+    if (matchCount >= 8) return `⚔ RONDA DE ${matchCount * 2}`;
+    if (matchCount === 4) return '⚔ CUARTOS DE FINAL';
+    if (matchCount === 2) return '🔥 SEMIFINALES';
+    return '🏆 FINAL';
+  }
+
+  function renderCupBracket(cup, title, emoji, totalRounds) {
+    let html = `<div style="margin-bottom:40px">
+      <div class="section-title" style="font-size:15px">${emoji} ${title}</div>`;
+    for (let r = 0; r < totalRounds; r++) {
+      const rMatches = state.matches.filter(m => m.phase === `${cup}_${r}` && !m.isBye).sort((a,b) => a.order - b.order);
+      if (!rMatches.length) continue;
+      const label = koRoundLabel(rMatches.length);
+      const gridClass = rMatches.length >= 4 ? 'qf' : rMatches.length === 2 ? 'sf' : 'fn';
+      const isLast = r === totalRounds - 1;
+      const winner = isLast && rMatches[0]?.winnerName;
+      html += `<div style="margin-bottom:20px"><div class="phase-label">${label}</div>
+        <div class="phase-grid ${gridClass}">${rMatches.map((m,i) => mcardHtml(m,`P${i+1}`)).join('')}</div>
+        ${winner ? `<div class="champion">${emoji} CAMPEÓN ${title.toUpperCase()}: ${esc(winner)}</div>` : ''}</div>`;
+    }
+    html += `</div>`;
+    return html;
+  }
+
   function renderKnockout() {
-    const qfs = state.matches.filter(m => m.phase === 'quarterfinal').sort((a,b) => a.order - b.order);
-    const sfs = state.matches.filter(m => m.phase === 'semifinal').sort((a,b) => a.order - b.order);
-    const fin = state.matches.find(m => m.phase === 'final');
+    const totalRounds = state.config.koTotalRounds;
+    if (!totalRounds) {
+      document.getElementById('bracket').innerHTML = '<p style="text-align:center;color:#333;padding:20px;letter-spacing:0.1em">Las llaves se arman al finalizar la fase de grupos.</p>';
+      return;
+    }
+
+    const goldMatches = state.matches.filter(m => m.phase?.startsWith('gold_'));
+    const silverMatches = state.matches.filter(m => m.phase?.startsWith('silver_'));
+
     let html = '';
-
-    if (qfs.length) html += `<div><div class="phase-label">⚔ CUARTOS DE FINAL</div>
-      <div class="phase-grid qf">${qfs.map((m,i) => mcardHtml(m,`QF${i+1}`)).join('')}</div></div>`;
-
-    if (sfs.length) html += `<div><div class="phase-label">🔥 SEMIFINALES</div>
-      <div class="phase-grid sf">${sfs.map((m,i) => mcardHtml(m,`SF${i+1}`)).join('')}</div></div>`;
-
-    if (fin) html += `<div><div class="phase-label">🏆 FINAL</div>
-      <div class="phase-grid fn">${mcardHtml(fin,'FINAL')}</div>
-      ${fin.winnerName ? `<div class="champion">🏆 CAMPEÓN: ${esc(fin.winnerName)}</div>` : ''}</div>`;
+    if (goldMatches.length) html += renderCupBracket('gold', 'Copa de Oro', '🥇', totalRounds);
+    if (goldMatches.length && silverMatches.length)
+      html += `<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(161,0,255,0.3),transparent);margin:0 0 40px"></div>`;
+    if (silverMatches.length) html += renderCupBracket('silver', 'Copa de Plata', '🥈', totalRounds);
 
     document.getElementById('bracket').innerHTML = html || '<p style="text-align:center;color:#333;padding:20px;letter-spacing:0.1em">Las llaves se arman al finalizar la fase de grupos.</p>';
   }
