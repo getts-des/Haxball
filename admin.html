@@ -206,7 +206,6 @@
 
   let state = { config: null, teams: [], matches: [] };
   let unsubs = [];
-  let selectedTeamCount = 0;
 
   // ─── AUTH ───────────────────────────────────────────────
   auth.onAuthStateChanged(user => {
@@ -305,95 +304,50 @@
 
   // ─── SETUP PHASE ─────────────────────────────────────────
   function renderSetup() {
-    if (!selectedTeamCount) {
-      return `<div class="panel-title">⚙ CONFIGURACIÓN DEL TORNEO</div>
-        <div class="panel-sub">Ingresá la cantidad de equipos (múltiplo de 4, mínimo 8)</div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:16px;margin:40px 0">
-          <input type="number" id="team-count-input" class="score-input"
-            style="width:130px;font-size:28px;padding:14px;text-align:center"
-            placeholder="16" min="8" step="4">
-          <button class="btn-start" style="margin:0" onclick="confirmTeamCount()">CONTINUAR →</button>
-        </div>
-        <div id="setup-alert"></div>`;
-    }
-
-    const numGroups = selectedTeamCount / 4;
-    const groupLabels = Array.from({length: numGroups}, (_, i) => String.fromCharCode(65 + i));
-    const cols = groupLabels.map(g => `
-      <div class="setup-group">
-        <div class="setup-group-title">GRUPO ${g}</div>
-        <input class="team-input" placeholder="Equipo 1" id="g${g}t1">
-        <input class="team-input" placeholder="Equipo 2" id="g${g}t2">
-        <input class="team-input" placeholder="Equipo 3" id="g${g}t3">
-        <input class="team-input" placeholder="Equipo 4" id="g${g}t4">
-      </div>`).join('');
-
     return `<div class="panel-title">⚙ CONFIGURACIÓN DEL TORNEO</div>
-      <div class="panel-sub">${selectedTeamCount} equipos · ${numGroups} grupos de 4</div>
-      <div style="margin-bottom:16px">
-        <button class="btn-edit" onclick="selectedTeamCount=0;renderPanel()">← Cambiar cantidad</button>
+      <div class="panel-sub">Ingresá los 4 equipos participantes</div>
+      <div class="setup-group" style="max-width:320px;margin:0 auto 24px">
+        <input class="team-input" placeholder="Equipo 1" id="t1">
+        <input class="team-input" placeholder="Equipo 2" id="t2">
+        <input class="team-input" placeholder="Equipo 3" id="t3">
+        <input class="team-input" placeholder="Equipo 4" id="t4">
       </div>
-      <div class="groups-setup">${cols}</div>
       <div id="setup-alert"></div>
       <button class="btn-start" onclick="initTournament()">INICIAR TORNEO</button>`;
   }
 
-  function confirmTeamCount() {
-    const val = parseInt(document.getElementById('team-count-input').value);
-    if (!val || val < 8 || val % 4 !== 0) {
-      document.getElementById('setup-alert').innerHTML = '<div class="alert err">Ingresá un número múltiplo de 4, mínimo 8.</div>';
-      return;
-    }
-    selectedTeamCount = val;
-    renderPanel();
-  }
-
   async function initTournament() {
-    const numGroups = selectedTeamCount / 4;
-    const groupLabels = Array.from({length: numGroups}, (_, i) => String.fromCharCode(65 + i));
-    const allTeams = [];
-    for (const g of groupLabels) {
-      for (let i = 1; i <= 4; i++) {
-        const val = document.getElementById(`g${g}t${i}`).value.trim();
-        if (!val) {
-          document.getElementById('setup-alert').innerHTML = `<div class="alert err">Completá los ${selectedTeamCount} equipos antes de iniciar.</div>`;
-          return;
-        }
-        allTeams.push({ name: val, group: g });
+    const teams = [];
+    for (let i = 1; i <= 4; i++) {
+      const val = document.getElementById(`t${i}`).value.trim();
+      if (!val) {
+        document.getElementById('setup-alert').innerHTML = '<div class="alert err">Completá los 4 equipos antes de iniciar.</div>';
+        return;
       }
+      teams.push(val);
     }
-
     const btn = document.querySelector('.btn-start');
     btn.disabled = true; btn.textContent = 'Iniciando...';
-
     try {
       const batch = db.batch();
-      const teamRefs = {};
-      groupLabels.forEach(g => teamRefs[g] = []);
-
-      for (const t of allTeams) {
+      const refs = [];
+      for (const name of teams) {
         const ref = db.collection('teams').doc();
-        batch.set(ref, { name: t.name, group: t.group });
-        teamRefs[t.group].push({ id: ref.id, name: t.name });
+        batch.set(ref, { name, group: 'A' });
+        refs.push({ id: ref.id, name });
       }
-
       const pairs = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
-      let order = 0;
-      for (const g of groupLabels) {
-        const gt = teamRefs[g];
-        for (const [i, j] of pairs) {
-          const ref = db.collection('matches').doc();
-          batch.set(ref, {
-            phase: 'group', group: g, order: order++,
-            team1Id: gt[i].id, team2Id: gt[j].id,
-            team1Name: gt[i].name, team2Name: gt[j].name,
-            score1: null, score2: null, winnerId: null, winnerName: null,
-            status: 'pending'
-          });
-        }
-      }
-
-      batch.update(db.doc('tournament/config'), { status: 'groups', teamCount: selectedTeamCount, numGroups });
+      pairs.forEach(([i,j], order) => {
+        const ref = db.collection('matches').doc();
+        batch.set(ref, {
+          phase: 'group', group: 'A', order,
+          team1Id: refs[i].id, team2Id: refs[j].id,
+          team1Name: refs[i].name, team2Name: refs[j].name,
+          score1: null, score2: null, winnerId: null, winnerName: null,
+          status: 'pending'
+        });
+      });
+      batch.update(db.doc('tournament/config'), { status: 'groups' });
       await batch.commit();
     } catch (e) {
       document.getElementById('setup-alert').innerHTML = `<div class="alert err">Error: ${e.message}</div>`;
@@ -405,28 +359,20 @@
   function renderGroupsPhase() {
     const gMatches = state.matches.filter(m => m.phase === 'group');
     const done = gMatches.filter(m => m.status === 'completed').length;
-    const total = gMatches.length;
-    const numGroups = state.config.numGroups || 4;
-    const expectedTotal = numGroups * 6;
-    const allDone = done === total && total === expectedTotal;
+    const allDone = done === 6;
 
-    const sections = ['A','B','C','D'].map(g => {
-      const ms = gMatches.filter(m => m.group === g).sort((a,b) => a.order - b.order);
-      const rows = ms.map(m => matchEntryRow(m)).join('');
-      return `<div class="phase-section">
-        <div class="phase-header">GRUPO ${g}</div>
-        ${rows}
-      </div>`;
-    }).join('');
+    const ms = gMatches.sort((a,b) => a.order - b.order);
+    const section = `<div class="phase-section">
+      <div class="phase-header">FASE DE GRUPOS</div>
+      ${ms.map(m => matchEntryRow(m)).join('')}
+    </div>`;
 
     const advBtn = allDone
-      ? `<button class="btn-advance" onclick="advanceToKnockouts()">⚡ AVANZAR A CUARTOS DE FINAL</button>`
-      : `<button class="btn-advance" disabled>⚡ AVANZAR A CUARTOS (${done}/${total} partidos)</button>`;
+      ? `<button class="btn-advance" onclick="advanceToKnockouts()">⚡ CREAR FINAL Y 3° PUESTO</button>`
+      : `<button class="btn-advance" disabled>⚡ CREAR FINAL Y 3° PUESTO (${done}/6 partidos)</button>`;
 
-    return `<div class="panel-title">⚽ FASE DE GRUPOS <span class="counter">${done}/${total} completados</span></div>
-      <div id="groups-alert"></div>
-      ${sections}
-      ${advBtn}`;
+    return `<div class="panel-title">⚽ FASE DE GRUPOS <span class="counter">${done}/6 completados</span></div>
+      ${section}${advBtn}`;
   }
 
   function matchEntryRow(m) {
@@ -482,132 +428,57 @@
     await db.doc(`matches/${matchId}`).update({ score1: s1, score2: s2, winnerId, winnerName, status: 'completed' });
   }
 
-  function nextPow2(n) { let p=1; while(p<n) p*=2; return p; }
-
-  function koRoundLabel(matchCount) {
-    if (matchCount >= 8) return `RONDA DE ${matchCount * 2}`;
-    if (matchCount === 4) return 'CUARTOS DE FINAL';
-    if (matchCount === 2) return 'SEMIFINALES';
-    return 'FINAL';
-  }
-
-  function buildBracket(seeds, cup, batch) {
-    const Q = seeds.length;
-    const B = nextPow2(Q);
-    const padded = [...seeds];
-    while (padded.length < B) padded.push(null);
-    const totalRounds = Math.log2(B);
-    for (let i = 0; i < B/2; i++) {
-      const t1 = padded[i], t2 = padded[B-1-i];
-      const isBye = !t1 || !t2;
-      const winner = isBye ? (t1 || t2) : null;
-      const ref = db.collection('matches').doc();
-      batch.set(ref, {
-        phase: `${cup}_0`, cup, group: null, order: i,
-        team1Id: t1?.id||null, team2Id: t2?.id||null,
-        team1Name: t1?.name||null, team2Name: t2?.name||null,
-        score1: isBye?0:null, score2: isBye?0:null,
-        winnerId: winner?.id||null, winnerName: winner?.name||null,
-        status: isBye?'completed':'pending', isBye
-      });
-    }
-    return totalRounds;
-  }
-
   async function advanceToKnockouts() {
     const btn = document.querySelector('.btn-advance');
     btn.disabled = true; btn.textContent = 'Calculando...';
     try {
-      const groups = [...new Set(state.teams.map(t => t.group))].sort();
-      const p1=[],p2=[],p3=[],p4=[];
-      for (const g of groups) {
-        const st = calcStandings(g);
-        if (st[0]) p1.push({ id:st[0].id, name:st[0].name });
-        if (st[1]) p2.push({ id:st[1].id, name:st[1].name });
-        if (st[2]) p3.push({ id:st[2].id, name:st[2].name });
-        if (st[3]) p4.push({ id:st[3].id, name:st[3].name });
-      }
-      const goldSeeds = [...p1, ...p2];
-      const silverSeeds = [...p3, ...p4];
-
+      const st = calcStandings('A');
       const batch = db.batch();
-      const goldRounds = buildBracket(goldSeeds, 'gold', batch);
-      const silverRounds = buildBracket(silverSeeds, 'silver', batch);
-      batch.update(db.doc('tournament/config'), {
-        status: 'knockouts',
-        koTotalRounds: goldRounds
+      // Final: 1° vs 2°
+      const finalRef = db.collection('matches').doc();
+      batch.set(finalRef, {
+        phase: 'final', group: null, order: 0,
+        team1Id: st[0].id, team2Id: st[1].id,
+        team1Name: st[0].name, team2Name: st[1].name,
+        score1: null, score2: null, winnerId: null, winnerName: null, status: 'pending'
       });
+      // 3° puesto: 3° vs 4°
+      const thirdRef = db.collection('matches').doc();
+      batch.set(thirdRef, {
+        phase: 'third', group: null, order: 0,
+        team1Id: st[2].id, team2Id: st[3].id,
+        team1Name: st[2].name, team2Name: st[3].name,
+        score1: null, score2: null, winnerId: null, winnerName: null, status: 'pending'
+      });
+      batch.update(db.doc('tournament/config'), { status: 'knockouts' });
       await batch.commit();
     } catch(e) {
-      alert('Error al avanzar: ' + e.message);
-      btn.disabled = false; btn.textContent = '⚡ AVANZAR A ELIMINATORIAS';
+      alert('Error: ' + e.message);
+      btn.disabled = false; btn.textContent = '⚡ CREAR FINAL Y 3° PUESTO';
     }
   }
 
   // ─── KNOCKOUTS PHASE ─────────────────────────────────────
-  function renderCupSection(cup, label, emoji) {
-    const totalRounds = state.config.koTotalRounds || 3;
-    let html = `<div style="margin-bottom:32px">
-      <div class="panel-title">${emoji} ${label}</div>`;
-
-    for (let r = 0; r < totalRounds; r++) {
-      const rMatches = state.matches.filter(m => m.phase === `${cup}_${r}`).sort((a,b) => a.order - b.order);
-      const visible = rMatches.filter(m => !m.isBye);
-      const allDone = rMatches.length > 0 && rMatches.every(m => m.status === 'completed');
-      const nextExists = state.matches.some(m => m.phase === `${cup}_${r+1}`);
-      const isLast = r === totalRounds - 1;
-
-      html += `<div class="phase-section"><div class="phase-header">${koRoundLabel(rMatches.length || Math.pow(2, totalRounds-1-r))}</div>`;
-      if (visible.length > 0) {
-        html += visible.map(m => matchEntryRow(m)).join('');
-      } else if (r > 0) {
-        const prevDone = state.matches.filter(m => m.phase === `${cup}_${r-1}`).every(m => m.status === 'completed');
-        html += `<div class="pending-phase">${prevDone ? 'Listo para crear.' : 'Esperando la ronda anterior.'}</div>`;
-      }
-      html += `</div>`;
-
-      if (allDone && !nextExists && !isLast) {
-        html += `<button class="btn-advance" style="margin-bottom:12px" onclick="createNextRound('${cup}',${r})">⚡ CREAR ${koRoundLabel(rMatches.length/2)}</button>`;
-      }
-    }
-    html += `</div>`;
-    return html;
-  }
-
   function renderKnockoutsPhase() {
-    const totalRounds = state.config.koTotalRounds;
-    if (!totalRounds) return `<div class="panel-title">🏆 ELIMINATORIAS</div>`;
+    const fin = state.matches.find(m => m.phase === 'final');
+    const third = state.matches.find(m => m.phase === 'third');
+    const finDone = fin?.status === 'completed';
+    const thirdDone = third?.status === 'completed';
 
-    const goldFinal = state.matches.filter(m => m.phase === `gold_${totalRounds-1}`);
-    const silverFinal = state.matches.filter(m => m.phase === `silver_${totalRounds-1}`);
-    const bothDone = goldFinal.every(m => m.status==='completed') && silverFinal.every(m => m.status==='completed')
-      && goldFinal.length > 0 && silverFinal.length > 0;
+    let html = `<div class="panel-title">🏆 ELIMINATORIAS</div>`;
 
-    let html = renderCupSection('gold', 'COPA DE ORO', '🥇');
-    html += `<div style="height:1px;background:linear-gradient(90deg,transparent,rgba(161,0,255,0.3),transparent);margin:16px 0 32px"></div>`;
-    html += renderCupSection('silver', 'COPA DE PLATA', '🥈');
+    html += `<div class="phase-section"><div class="phase-header">🥇 FINAL</div>
+      ${fin ? matchEntryRow(fin) : '<div class="pending-phase">No creada aún.</div>'}
+    </div>`;
 
-    if (bothDone && state.config.status !== 'finished') {
+    html += `<div class="phase-section"><div class="phase-header">🥉 3° Y 4° PUESTO</div>
+      ${third ? matchEntryRow(third) : '<div class="pending-phase">No creada aún.</div>'}
+    </div>`;
+
+    if (finDone && thirdDone && state.config.status !== 'finished')
       html += `<button class="btn-finish" onclick="finishTournament()">🏆 FINALIZAR TORNEO</button>`;
-    }
-    return html;
-  }
 
-  async function createNextRound(cup, fromRound) {
-    const prev = state.matches.filter(m => m.phase === `${cup}_${fromRound}`).sort((a,b) => a.order - b.order);
-    const batch = db.batch();
-    for (let i = 0; i < prev.length; i += 2) {
-      const m1 = prev[i], m2 = prev[i+1];
-      const ref = db.collection('matches').doc();
-      batch.set(ref, {
-        phase: `${cup}_${fromRound+1}`, cup, group: null, order: i/2,
-        team1Id: m1.winnerId, team2Id: m2.winnerId,
-        team1Name: m1.winnerName, team2Name: m2.winnerName,
-        score1: null, score2: null, winnerId: null, winnerName: null,
-        status: 'pending', isBye: false
-      });
-    }
-    await batch.commit();
+    return html;
   }
 
   async function finishTournament() {
